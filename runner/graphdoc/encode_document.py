@@ -97,6 +97,12 @@ bboxes[:, 0::2] = bboxes[:, 0::2] * ratio_W
 bboxes[:, 1::2] = bboxes[:, 1::2] * ratio_H
 sentence_embeddings = extract_sentence_embeddings(contents, tokenizer, sentence_bert)
 
+# append global node
+global_bbox = np.array([0, 0, 512,512]).astype('int64')
+bboxes = np.concatenate([global_bbox[None, :], bboxes], axis=0)
+global_embed = np.zeros_like(sentence_embeddings[0])
+sentence_embeddings = np.concatenate([global_embed[None, :], sentence_embeddings], axis=0)
+
 input_images = merge3d([torch.from_numpy(image.transpose(2,0,1).astype(np.float32))], 0).cuda()
 input_embeds = merge2d([torch.from_numpy(sentence_embeddings)], 0).cuda()
 attention_mask = mask1d([torch.from_numpy(sentence_embeddings)], 0).cuda()
